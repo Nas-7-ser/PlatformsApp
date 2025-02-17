@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String?
+  email     String     @unique
+  password  String
+  portfolios Portfolio[]
+  votes     Vote[]
+}
+
+model Portfolio {
+  id          String     @id @default(cuid())
+  title       String
+  tagline     String?
+  description String?
+  thumbnail   String?
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  socialLinks SocialLink[]
+  blocks      Block[]
+  votes       Vote[]
+}
+
+model SocialLink {
+  id         String    @id @default(cuid())
+  platform   String
+  url        String
+  portfolioId String
+  portfolio  Portfolio @relation(fields: [portfolioId], references: [id])
+}
+
+model Block {
+  id         String    @id @default(cuid())
+  type       String
+  content    String
+  portfolioId String
+  portfolio  Portfolio @relation(fields: [portfolioId], references: [id])
+}
+
+model Vote {
+  id          String    @id @default(cuid())
+  voteType    String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+
+  @@unique([userId, portfolioId])
+}
+
